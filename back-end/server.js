@@ -36,3 +36,13 @@ app.use(sessionMiddleware);
 // 정적 파일 제공
 app.use(express.static(path.join(__dirname, "../front-end/build")));
 app.use(express.static(path.join(__dirname, "public")));
+
+const signupRoutes = require("./function/signup");
+
+app.use("/", signupRoutes);
+
+// 서버 시작
+const PORT = process.env.PORT || 3306;
+server.listen(PORT, () => {
+  console.log(`서버가 ${PORT} 포트에서 실행 중입니다.`);
+});

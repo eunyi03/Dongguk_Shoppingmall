@@ -5,6 +5,8 @@ const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
 const db_config = require("./config/db_config.json");
 const app = express();
+const cors = require('cors');
+const http = require('http');
 
 // MySQL 세션 스토어 옵션
 const sessionStoreOptions = {
@@ -41,8 +43,11 @@ const signupRoutes = require("./function/signup");
 
 app.use("/", signupRoutes);
 
+// HTTP 서버 생성
+const server = http.createServer(app);
+
 // 서버 시작
-const PORT = process.env.PORT || 3306;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`서버가 ${PORT} 포트에서 실행 중입니다.`);
 });

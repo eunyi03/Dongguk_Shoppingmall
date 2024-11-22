@@ -1,24 +1,32 @@
-import logo from './logo.svg';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
+
+import Navbar from './components/Navbar';  // Navbar 컴포넌트를 임포트합니다.
+import Loginpage from './components/mypage/Loginpage.js';
+import Signuppage from './components/mypage/Signuppage.js';
+
+function MainPage() {
+  return (
+    <div>
+      <h1>Main Page</h1>
+      <p>Welcome to the main page!</p>
+    </div>
+  );
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Navbar /> 
+      <div className="content">
+        <Routes>
+          <Route path="/" element={<MainPage />} />
+          <Route path="/signup" element={<Signuppage />} />
+          <Route path="/login" element={<Loginpage />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 

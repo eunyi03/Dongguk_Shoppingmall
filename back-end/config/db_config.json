@@ -1,6 +1,7 @@
 {
-    "host": "35.225.210.193",
+    "host": "34.30.215.169",
     "user": "root",
-    "database": "shoppingmall",
-    "port": "3306 "
+    "database": "shop",
+    "password": "shop1234",
+    "port": "3306"
 }

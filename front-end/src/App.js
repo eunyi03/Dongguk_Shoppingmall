@@ -5,15 +5,10 @@ import './App.css';
 import Navbar from './components/Navbar';  // Navbar 컴포넌트를 임포트합니다.
 import Loginpage from './components/mypage/Loginpage.js';
 import Signuppage from './components/mypage/Signuppage.js';
-
-function MainPage() {
-  return (
-    <div>
-      <h1>Main Page</h1>
-      <p>Welcome to the main page!</p>
-    </div>
-  );
-}
+import Deal from './components/Product/Deal.js';
+import Write from './components/Product/Write.js';
+import DealRead from './components/Product/DealRead.js';  // ProductRead 컴포넌트를 임포트합니다.
+import DealEdit from './components/Product/DealEdit.js';  // ProductEdit 컴포넌트를 임포트합니다.
 
 function App() {
   return (
@@ -21,9 +16,12 @@ function App() {
       <Navbar /> 
       <div className="content">
         <Routes>
-          <Route path="/" element={<MainPage />} />
+          <Route path="/" element={<Deal />} />
+          <Route path="/productread" element={<DealRead />} />
           <Route path="/signup" element={<Signuppage />} />
           <Route path="/login" element={<Loginpage />} />
+          <Route path="/write" element={<Write />} />
+          <Route path="/edit" element={<DealEdit />} />
         </Routes>
       </div>
     </BrowserRouter>

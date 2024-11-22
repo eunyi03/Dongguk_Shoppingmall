@@ -1,4 +1,225 @@
-//로그인 페이지
+// //로그인 페이지
+// const express = require("express");
+// const bcrypt = require("bcrypt");
+// const router = express.Router();
+// const mysql = require("mysql");
+// const db_config = require("../config/db_config.json");
+
+// const pool = mysql.createPool({
+//   connectionLimit: 10,
+//   host: db_config.host,
+//   user: db_config.user,
+//   database: db_config.database,
+//   port: db_config.port,
+//   debug: false,
+// });
+
+// router.post("/process/login", (req, res) => {
+//   console.log("/login 호출됨", req.body);
+//   const paramCustomerID = req.body.customer_id;
+//   const paramPassword = req.body.password;
+
+//   console.log("로그인 요청입니다. " + paramCustomerID + " " + paramPassword);
+//   pool.getConnection((err, conn) => {
+//     if (err) {
+//       console.log("MySQL Connection Error", err);
+//       if (conn) conn.release();
+//       res.status(500).json({ success: false, message: "DB 서버 연결 실패" });
+//       return;
+//     }
+//     conn.query(
+//       "SELECT * FROM Customers WHERE CustomerID = ?",
+//       [paramCustomerID],
+//       async (err, rows) => {
+//         conn.release();
+//         if (err) {
+//           console.dir(err);
+//           res.status(500).json({ success: false, message: "Query 실패" });
+//           return;
+//         }
+
+//         if (rows.length > 0) {
+//           const user = rows[0];
+//           const match = await bcrypt.compare(paramPassword, user.Password);
+//           if (match) {
+//             console.log(
+//               "아이디 [%s], 패스워드가 일치하는 이름 [%s] 찾음",
+//               paramCustomerID,
+//               user.CustomerNickname
+//             );
+//             req.session.user = {
+//             customer_id: user.CustomerID,
+//             customer_nickname: user.CustomerNickname,
+//             authorized: true,
+//             };
+//             res.json({ success: true });
+//           } else {
+//             console.log("비밀번호 [%s], 패스워드가 일치하지 않음", paramPassword);
+//             res
+//               .status(401)
+//               .json({ success: false, message: "패스워드가 일치하지 않음" });
+//           }
+//         } else {
+//           console.log("아이디 [%s], 패스워드가 일치하는 아이디 없음", paramCustomerID);
+//           res.status(401).json({
+//             success: false,
+//             message: "아이디 또는 패스워드가 일치하지 않음",
+//           });
+//         }
+//       }
+//     );
+//   });
+// });
+// router.use("/loginpage", router);
+// module.exports = router;
+
+// // login.js 회원가입 + 로그인 기능
+// // 로그인
+// const express = require("express");
+// const bcrypt = require("bcrypt");
+// const router = express.Router();
+// const mysql = require("mysql");
+// const db_config = require("../config/db_config.json");
+
+// const pool = mysql.createPool({
+//   connectionLimit: 10,
+//   host: db_config.host,
+//   user: db_config.user,
+//   password: db_config.password,
+//   database: db_config.database,
+//   port: db_config.port,
+//   debug: false,
+// });
+
+// // /login에 접속했을 때 실행
+// router.post("/process/loginpage", (req, res) => {
+//   console.log("/login 호출됨", req.body);
+//   const paramID = req.body.customerid; // 고객 ID
+//   const paramPW = req.body.password; // 비밀번호
+
+//   console.log("로그인 요청: ID = " + paramID + ", PW = " + paramPW);
+//   pool.getConnection((err, conn) => {
+//     if (err) {
+//       console.log("MySQL Connection Error", err);
+//       if (conn) conn.release();
+//       res.status(500).json({ success: false, message: "DB 서버 연결 실패" });
+//       return;
+//     }
+
+//     // 로그인 쿼리 실행
+//     conn.query(
+//       "SELECT customerid, customernickname, password FROM Customers WHERE customerid = ?",
+//       [paramID],
+//       async (err, rows) => {
+//         conn.release();
+//         if (err) {
+//           console.dir(err);
+//           res.status(500).json({ success: false, message: "Query 실패" });
+//           return;
+//         }
+
+//         if (rows.length > 0) {
+//           const user = rows[0];
+//           // 비밀번호 확인
+//           const match = await bcrypt.compare(paramPW, user.password);
+//           if (match) {
+//             console.log(
+//               "로그인 성공: ID = [%s], 닉네임 = [%s]",
+//               paramID,
+//               user.customernickname
+//             );
+//             req.session.user = {
+//               id: user.customerid,
+//               nickname: user.customernickname,
+//               authorized: true,
+//             };
+//             res.json({ success: true });
+//           } else {
+//             console.log("비밀번호 불일치: 입력된 PW = [%s]", paramPW);
+//             res
+//               .status(401)
+//               .json({ success: false, message: "패스워드가 일치하지 않음" });
+//           }
+//         } else {
+//           console.log("로그인 실패: ID [%s]와 일치하는 사용자 없음", paramID);
+//           res.status(401).json({
+//             success: false,
+//             message: "아이디 또는 패스워드가 일치하지 않음",
+//           });
+//         }
+//       }
+//     );
+//   });
+// });
+
+// // 회원가입 처리
+// router.post("/process/signuppage", async (req, res) => {
+//   console.log("/signup 호출됨", req.body);
+
+//   const paramID = req.body.customerid; // 고객 ID
+//   const paramNickname = req.body.customernickname; // 닉네임
+//   const paramPW = req.body.password; // 비밀번호
+//   const paramPhone = req.body.phone; // 전화번호
+//   const paramZip = req.body.zip; // 우편번호
+//   const paramAddress = req.body.address; // 주소
+//   const paramAddressDetail = req.body.addressdetail; // 상세 주소
+//   const paramAccount = req.body.account; // 계좌번호
+
+//   try {
+//     const hashedPassword = await bcrypt.hash(paramPW, 10);
+
+//     pool.getConnection((err, conn) => {
+//       if (err) {
+//         console.log("MySQL Connection Error", err);
+//         if (conn) conn.release();
+//         return res.json({ success: false, message: "DB 서버 연결 실패" });
+//       }
+//       console.log("데이터베이스 연결 성공");
+
+//       // 회원가입 쿼리 실행
+//       const exec = conn.query(
+//         "INSERT INTO Customers (customerid, customernickname, password, phone, zip, address, addressdetail, account) VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
+//         [
+//           paramID,
+//           paramNickname,
+//           hashedPassword,
+//           paramPhone,
+//           paramZip,
+//           paramAddress,
+//           paramAddressDetail,
+//           paramAccount,
+//         ],
+//         (err, result) => {
+//           conn.release();
+//           console.log("실행된 SQL: " + exec.sql);
+
+//           if (err) {
+//             console.log("SQL 실행 오류 발생", err);
+//             return res.json({
+//               success: false,
+//               message: "Query 실패 (중복된 ID, 닉네임 또는 전화번호)",
+//             });
+//           }
+
+//           if (result) {
+//             console.log("회원가입 성공");
+//             return res.json({ success: true, message: "회원가입 성공" });
+//           } else {
+//             console.log("회원가입 실패");
+//             return res.json({ success: false, message: "사용자 추가 실패" });
+//           }
+//         }
+//       );
+//     });
+//   } catch (error) {
+//     console.log("비밀번호 해싱 오류", error);
+//     return res.json({ success: false, message: "비밀번호 해싱 실패" });
+//   }
+// });
+
+// // app과 router 연동
+// module.exports = router;
+
 const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
@@ -9,58 +230,70 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   host: db_config.host,
   user: db_config.user,
+  password: db_config.password,
   database: db_config.database,
   port: db_config.port,
   debug: false,
 });
 
-router.post("/process/login", (req, res) => {
+// 로그인 처리
+router.post("/process/loginpage", (req, res) => {
   console.log("/login 호출됨", req.body);
-  const paramCustomerID = req.body.customer_id;
-  const paramPassword = req.body.password;
+  const paramID = req.body.customerid; // 고객 ID
+  const paramPW = req.body.password; // 비밀번호
 
-  console.log("로그인 요청입니다. " + paramCustomerID + " " + paramPassword);
+  console.log("로그인 요청: ID = " + paramID + ", PW = " + paramPW);
   pool.getConnection((err, conn) => {
     if (err) {
       console.log("MySQL Connection Error", err);
       if (conn) conn.release();
-      res.status(500).json({ success: false, message: "DB 서버 연결 실패" });
-      return;
+      return res.status(500).json({ success: false, message: "DB 서버 연결 실패" });
     }
+
+    // 로그인 쿼리 실행
     conn.query(
-      "SELECT * FROM Customers WHERE CustomerID = ?",
-      [paramCustomerID],
+      "SELECT customerid, customernickname, password FROM Customers WHERE customerid = ?",
+      [paramID],
       async (err, rows) => {
         conn.release();
         if (err) {
-          console.dir(err);
-          res.status(500).json({ success: false, message: "Query 실패" });
-          return;
+          console.error("Query 실행 오류:", err);
+          return res.status(500).json({ success: false, message: "Query 실패" });
         }
 
         if (rows.length > 0) {
           const user = rows[0];
-          const match = await bcrypt.compare(paramPassword, user.Password);
+          console.log("DB에서 찾은 사용자:", user);
+
+          // 비밀번호 확인
+          const match = await bcrypt.compare(paramPW, user.password);
           if (match) {
             console.log(
-              "아이디 [%s], 패스워드가 일치하는 이름 [%s] 찾음",
-              paramCustomerID,
-              user.CustomerNickname
+              "로그인 성공: ID = [%s], 닉네임 = [%s]",
+              paramID,
+              user.customernickname
             );
             req.session.user = {
-            customer_id: user.CustomerID,
-            customer_nickname: user.CustomerNickname,
-            authorized: true,
+              CustomerID: user.customerid,
+              CustomerNickname: user.customernickname,
+              authorized: true,
             };
-            res.json({ success: true });
+
+            // 세션 저장
+            req.session.save((err) => {
+              if (err) {
+                console.error("세션 저장 오류:", err);
+                return res.status(500).json({ success: false, message: "세션 저장 실패" });
+              }
+              console.log("세션 저장 완료:", req.session.user);
+              res.json({ success: true });
+            });
           } else {
-            console.log("비밀번호 [%s], 패스워드가 일치하지 않음", paramPassword);
-            res
-              .status(401)
-              .json({ success: false, message: "패스워드가 일치하지 않음" });
+            console.log("비밀번호 불일치: 입력된 PW = [%s]", paramPW);
+            res.status(401).json({ success: false, message: "패스워드가 일치하지 않음" });
           }
         } else {
-          console.log("아이디 [%s], 패스워드가 일치하는 아이디 없음", paramCustomerID);
+          console.log("로그인 실패: ID [%s]와 일치하는 사용자 없음", paramID);
           res.status(401).json({
             success: false,
             message: "아이디 또는 패스워드가 일치하지 않음",
@@ -70,5 +303,87 @@ router.post("/process/login", (req, res) => {
     );
   });
 });
-router.use("/loginpage", router);
+
+// 회원가입 처리
+router.post("/process/signuppage", async (req, res) => {
+  console.log("/signup 호출됨", req.body);
+
+  const paramID = req.body.customerid; // 고객 ID
+  const paramNickname = req.body.customernickname; // 닉네임
+  const paramPW = req.body.password; // 비밀번호
+  const paramPhone = req.body.phone; // 전화번호
+  const paramZip = req.body.zip; // 우편번호
+  const paramAddress = req.body.address; // 주소
+  const paramAddressDetail = req.body.addressdetail; // 상세 주소
+  const paramAccount = req.body.account; // 계좌번호
+
+  try {
+    const hashedPassword = await bcrypt.hash(paramPW, 10);
+
+    pool.getConnection((err, conn) => {
+      if (err) {
+        console.log("MySQL Connection Error", err);
+        if (conn) conn.release();
+        return res.json({ success: false, message: "DB 서버 연결 실패" });
+      }
+      console.log("데이터베이스 연결 성공");
+
+      // 회원가입 쿼리 실행
+      const exec = conn.query(
+        "INSERT INTO Customers (customerid, customernickname, password, phone, zip, address, addressdetail, account) VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
+        [
+          paramID,
+          paramNickname,
+          hashedPassword,
+          paramPhone,
+          paramZip,
+          paramAddress,
+          paramAddressDetail,
+          paramAccount,
+        ],
+        (err, result) => {
+          conn.release();
+          console.log("실행된 SQL: " + exec.sql);
+
+          if (err) {
+            console.log("SQL 실행 오류 발생", err);
+            return res.json({
+              success: false,
+              message: "Query 실패 (중복된 ID, 닉네임 또는 전화번호)",
+            });
+          }
+
+          if (result) {
+            console.log("회원가입 성공");
+            return res.json({ success: true, message: "회원가입 성공" });
+          } else {
+            console.log("회원가입 실패");
+            return res.json({ success: false, message: "사용자 추가 실패" });
+          }
+        }
+      );
+    });
+  } catch (error) {
+    console.log("비밀번호 해싱 오류", error);
+    return res.json({ success: false, message: "비밀번호 해싱 실패" });
+  }
+});
+
+// 로그아웃 처리
+router.post("/process/logout", (req, res) => {
+  if (req.session.user) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("로그아웃 중 오류:", err);
+        return res.status(500).json({ success: false, message: "로그아웃 실패" });
+      }
+      console.log("로그아웃 성공");
+      res.json({ success: true, message: "로그아웃 성공" });
+    });
+  } else {
+    res.status(400).json({ success: false, message: "로그인 상태가 아님" });
+  }
+});
+
+// app과 router 연동
 module.exports = router;
